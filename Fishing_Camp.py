@@ -58,8 +58,8 @@ class MainGUI:
         self.gu_combo.place(x=50, y=150)
 
         # 낚시터 리스트 박스
-        self.sigunListBox = Listbox(frame1, width=40, height=23)
-        self.sigunListBox.place(x=50, y=200)
+        self.fishingCampListBox = Listbox(frame1, width=40, height=23)
+        self.fishingCampListBox.place(x=50, y=200)
 
 
         # 지도
@@ -77,6 +77,24 @@ class MainGUI:
         self.Info = Button(frame1, text="Info", width=15, height=7, command=self.pressdInfo)
         self.Info.place(x=670, y=450)
 
+    def setNoteTwo(self):
+        frame2 = Frame(self.window)
+        self.notebook.add(frame2, text='즐겨찾기')
+        Label(frame2, text='Fishing Camp', fg='black', font='helvetica 20').place(x=50, y=30)
+
+        # 낚시터 리스트 박스
+        self.starFishingCampListBox = Listbox(frame2, width=45, height=30)
+        self.starFishingCampListBox.place(x=50, y=100)
+
+        # 낚시터 정보 라벨
+        self.starFishingCampInfo = Label(frame2, font=("Consolas", 20))
+        self.starFishingCampInfo.place(x=400, y=100)
+        self.starFishingCampInfo.config(text=f"낚시터 이름: \n"
+                               f"면적: \n"
+                               f"가격: \n"
+                               f"위치: \n"
+                               f"날씨: ")
+
     def __init__(self):
         self.window = Tk()
         self.window.title('Fishing Camp')
@@ -84,14 +102,11 @@ class MainGUI:
         self.notebook.pack()
 
         self.setNoteOne()
+        self.setNoteTwo()
 
 
 
 
-        frame2 = Frame(self.window)
-
-        self.notebook.add(frame2, text='즐겨찾기')
-        Label(frame2, text='페이지2의 내용', fg='blue', font='helvetica 48').pack()
         frame3 = Frame(self.window)
         self.notebook.add(frame3, text='면적 그래프')
         Label(frame3, text='페이지3의 내용', fg='orange', font='helvetica 48').pack()
