@@ -3,37 +3,46 @@ import tkinter.ttk
 import requests
 import xml.etree.ElementTree as ET
 
-
-#
-# # 공공데이터 API 키
-# api_key = "74fa492cdb04499b94a9f323b07ccecf"
-#
-# # 경기도 낚시터 정보 API
-# url = "https://openapi.gg.go.kr/FishingPlaceStatus"
-# params = {
-#     "Key": api_key,
-#     "pIndex": 1,
-#     "pSize": 50,
-#     "SIGUN_NM": '가평군',
-# }
-# response = requests.get(url, params=params)
-#
-# root = ET.fromstring(response.content)
-# rows = root.findall(".//row")
-#
-# fishingCamps = []
-# for row in rows:
-#     fishingCamp = {
-#         "name": row.findtext("FISHPLC_NM"),  # 낚시터 이름
-#         "address": row.findtext("REFINE_ROADNM_ADDR"),  # 낚시터 도로명 주소
-#         "lat": row.findtext("REFINE_WGS84_LAT"),  # 위도
-#         "lng": row.findtext("REFINE_WGS84_LOGT"),  # 경도
-#         "area": row.findtext("FISHPLC_AR"),     # 낚시터 면적
-#         "price": row.findtext("UTLZ_CHRG"),  # 가격
-# }
-#     fishingCamps.append(fishingCamp)
+# 공공데이터 API 키
+api_key = "74fa492cdb04499b94a9f323b07ccecf"
+# 경기도 낚시터 정보 API
+url = "https://openapi.gg.go.kr/FishingPlaceStatus"
 
 class MainGUI:
+    def getFishingCampList(self, SIGUN):
+        params = {
+            "Key": api_key,
+            "pIndex": 1,
+            "pSize": 50,
+            "SIGUN_NM": SIGUN,
+        }
+        response = requests.get(url, params=params)
+
+        root = ET.fromstring(response.content)
+        rows = root.findall(".//row")
+
+        self.fishingCamps = []
+        for row in rows:
+            fishingCamp = {
+                "name": row.findtext("FISHPLC_NM"),  # 낚시터 이름
+                "address": row.findtext("REFINE_ROADNM_ADDR"),  # 낚시터 도로명 주소
+                "lat": row.findtext("REFINE_WGS84_LAT"),  # 위도
+                "lng": row.findtext("REFINE_WGS84_LOGT"),  # 경도
+                "area": row.findtext("FISHPLC_AR"),     # 낚시터 면적
+                "price": row.findtext("UTLZ_CHRG"),  # 가격
+        }
+            self.fishingCamps.append(fishingCamp)
+
+    def on_combobox_select(self, event):
+        selected_gu = self.selected_gu.get()
+        print(f"Selected: {selected_gu}")
+        self.getFishingCampList(selected_gu)
+        self.update_fishing_camp_listbox()
+
+    def update_fishing_camp_listbox(self):
+        self.fishingCampListBox.delete(0, END)
+        for camp in self.fishingCamps:
+            self.fishingCampListBox.insert(END, camp["name"])
 
     def pressdStar(self):
         pass
@@ -52,11 +61,12 @@ class MainGUI:
         # 시군 선택 콤보박스 생성
 
         self.gu_combo = tkinter.ttk.Combobox(frame1, textvariable=self.selected_gu, values=list(self.gu_options))
-        self.gu_combo.place(x=50, y=150)
+        self.gu_combo.place(x=50, y=100)
+        self.gu_combo.bind("<<ComboboxSelected>>", self.on_combobox_select)
 
         # 낚시터 리스트 박스
-        self.fishingCampListBox = Listbox(frame1, width=40, height=23)
-        self.fishingCampListBox.place(x=50, y=200)
+        self.fishingCampListBox = Listbox(frame1, width=26, height=17, font=("Consolas", 15))
+        self.fishingCampListBox.place(x=50, y=150)
 
 
         # 지도
@@ -80,7 +90,7 @@ class MainGUI:
         Label(frame2, text='Fishing Camp', fg='black', font='helvetica 20').place(x=50, y=30)
 
         # 낚시터 리스트 박스
-        self.starFishingCampListBox = Listbox(frame2, width=45, height=30)
+        self.starFishingCampListBox = Listbox(frame2, width=45, height=29)
         self.starFishingCampListBox.place(x=50, y=100)
 
         # 낚시터 정보 라벨
