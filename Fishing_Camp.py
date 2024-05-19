@@ -2,7 +2,7 @@ from tkinter import *
 import tkinter.ttk
 import requests
 import xml.etree.ElementTree as ET
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageSequence
 
 # 공공데이터 API 키
 api_key = "74fa492cdb04499b94a9f323b07ccecf"
@@ -112,19 +112,41 @@ class MainGUI:
             # 삭제 후 라벨에 표시된 정보 초기화
             self.starFishingCampInfo.config(text="낚시터 정보를 선택하세요")
 
+    def animate_gif(self):
+        try:
+            frame = next(self.gif_frames)
+            self.gif_label.config(image=frame)
+            self.frame1.after(100, self.animate_gif)
+        except StopIteration:
+            self.gif_frames = iter(self.gif_images)
+            self.animate_gif()
+
+    def animate_gif_note2(self):
+        try:
+            frame = next(self.gif_frames_note2)
+            self.gif_label_note2.config(image=frame)
+            self.frame2.after(100, self.animate_gif_note2)
+        except StopIteration:
+            self.gif_frames_note2 = iter(self.gif_images_note2)
+            self.animate_gif_note2()
+
     def setNoteOne(self):
         self.frame1 = Frame(self.window, bg='#E0FFFF')
         self.notebook.add(self.frame1, text='홈')
 
-        original_image = Image.open('resource/logo.gif')
-        resized_image = original_image.resize((285, 100), Image.LANCZOS)
-        self.gif_image = ImageTk.PhotoImage(resized_image)
+        original_image = Image.open('resource/fishing.gif')
+        self.gif_images = []
+        for frame in ImageSequence.Iterator(original_image):
+            resized_frame = frame.resize((285, 100), Image.LANCZOS)
+            self.gif_images.append(ImageTk.PhotoImage(resized_frame))
+        self.gif_frames = iter(self.gif_images)
 
-        label_with_image = Label(self.frame1, image=self.gif_image)
-        label_with_image.place(x=50, y=10)
+        self.gif_label = Label(self.frame1)
+        self.gif_label.place(x=50, y=10)
+        self.animate_gif()
 
         # 좌측에 정보를 출력할 라벨 생성
-        self.info_label = Label(self.frame1, text="원하는 정보를 여기에 출력하세요", font=("Consolas", 15), bg='#E0FFFF',
+        self.info_label = Label(self.frame1, text="낚시터를 선택해주세요", font=("Consolas", 15), bg='#E0FFFF',
                                 fg='#2F4F4F', wraplength=250)
         self.info_label.place(x=50, y=150)
 
@@ -154,26 +176,36 @@ class MainGUI:
         self.Info = Button(self.frame1, text="Info", width=15, height=7, command=self.pressdInfo)
         self.Info.place(x=670, y=450)
 
-    def setNoteTwo(self):
-        frame2 = Frame(self.window, bg='#E0FFFF')
-        self.notebook.add(frame2, text='즐겨찾기')
 
-        label_with_image = Label(frame2, image=self.gif_image)
-        label_with_image.place(x=50, y=10)
+
+    def setNoteTwo(self):
+        self.frame2 = Frame(self.window, bg='#E0FFFF')
+        self.notebook.add(self.frame2, text='즐겨찾기')
+
+        original_image_note2 = Image.open('resource/fishing.gif')
+        self.gif_images_note2 = []
+        for frame in ImageSequence.Iterator(original_image_note2):
+            resized_frame = frame.resize((285, 100), Image.LANCZOS)
+            self.gif_images_note2.append(ImageTk.PhotoImage(resized_frame))
+        self.gif_frames_note2 = iter(self.gif_images_note2)
+
+        self.gif_label_note2 = Label(self.frame2)
+        self.gif_label_note2.place(x=50, y=10)
+        self.animate_gif_note2()
 
         # 낚시터 리스트 박스
-        self.starFishingCampListBox = Listbox(frame2, width=26, height=15, font=("Consolas", 15), bg='#FFFFFF')
+        self.starFishingCampListBox = Listbox(self.frame2, width=26, height=15, font=("Consolas", 15), bg='#FFFFFF')
         self.starFishingCampListBox.place(x=50, y=120)
         self.starFishingCampListBox.bind("<<ListboxSelect>>", self.on_star_listbox_select)
 
 
         # 낚시터 정보 라벨
-        self.starFishingCampInfo = Label(frame2, font=("Consolas", 15), bg='#E0FFFF', fg='#2F4F4F', wraplength=250)
-        self.starFishingCampInfo.place(x=475, y=350)
+        self.starFishingCampInfo = Label(self.frame2, font=("Consolas", 15), bg='#E0FFFF', fg='#2F4F4F', wraplength=250)
+        self.starFishingCampInfo.place(x=475, y=330)
         self.starFishingCampInfo.config(text="낚시터 정보를 선택하세요")
 
         # 즐겨찾기 삭제 버튼
-        self.Delete = Button(frame2, text="Delete", width=40, height=3, command=self.pressdDelete)
+        self.Delete = Button(self.frame2, text="Delete", width=40, height=3, command=self.pressdDelete)
         self.Delete.place(x=50, y=500)
 
     def setNoteThree(self):
