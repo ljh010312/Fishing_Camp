@@ -51,8 +51,8 @@ class MainGUI:
             selected_camp = self.starredCamps[selected_index[0]]
             info_text = (
                 f"이름: {selected_camp['name']}\n"
-                f"면적: {selected_camp['area']}\n"
-                f"가격: {selected_camp['price']}\n"
+                f"면적(ha): {selected_camp['area']}\n"
+                f"가격(원): {selected_camp['price']}\n"
                 f"주소: {selected_camp['address']}\n"
                 f"위도: {selected_camp['lat']}\n"
                 f"경도: {selected_camp['lng']}\n"
@@ -63,9 +63,9 @@ class MainGUI:
         selected_index = self.fishingCampListBox.curselection()
         if selected_index:
             selected_camp = self.fishingCamps[selected_index[0]]
-            camp_name = selected_camp["name"]
-            if camp_name not in self.starredCamps:
+            if selected_camp not in self.starredCamps:
                 self.starredCamps.append(selected_camp)
+                camp_name = selected_camp["name"]
                 self.starFishingCampListBox.insert(END, camp_name)
 
     def pressdMail(self):
@@ -73,6 +73,18 @@ class MainGUI:
 
     def pressdInfo(self):
         pass
+
+    def pressdDelete(self):
+        selected_index = self.starFishingCampListBox.curselection()
+        if selected_index:
+            # 선택된 낚시터의 인덱스 가져오기
+            index_to_delete = selected_index[0]
+            # 즐겨찾기 리스트에서 해당 인덱스의 낚시터 정보 삭제
+            del self.starredCamps[index_to_delete]
+            # 즐겨찾기 리스트 박스에서도 해당 항목 삭제
+            self.starFishingCampListBox.delete(index_to_delete)
+            # 삭제 후 라벨에 표시된 정보 초기화
+            self.starFishingCampInfo.config(text="낚시터 정보를 선택하세요")
 
     def setNoteOne(self):
         frame1 = Frame(self.window, bg='#E0FFFF')
@@ -119,7 +131,7 @@ class MainGUI:
         label_with_image.place(x=50, y=10)
 
         # 낚시터 리스트 박스
-        self.starFishingCampListBox = Listbox(frame2, width=26, height=18, font=("Consolas", 15), bg='#FFFFFF')
+        self.starFishingCampListBox = Listbox(frame2, width=26, height=15, font=("Consolas", 15), bg='#FFFFFF')
         self.starFishingCampListBox.place(x=50, y=120)
         self.starFishingCampListBox.bind("<<ListboxSelect>>", self.on_star_listbox_select)
 
@@ -128,6 +140,10 @@ class MainGUI:
         self.starFishingCampInfo = Label(frame2, font=("Consolas", 15), bg='#E0FFFF', fg='#2F4F4F', wraplength=250)
         self.starFishingCampInfo.place(x=475, y=350)
         self.starFishingCampInfo.config(text="낚시터 정보를 선택하세요")
+
+        # 즐겨찾기 삭제 버튼
+        self.Delete = Button(frame2, text="Delete", width=40, height=3, command=self.pressdDelete)
+        self.Delete.place(x=50, y=500)
 
     def setNoteThree(self):
         frame3 = Frame(self.window, bg='#E0FFFF')
