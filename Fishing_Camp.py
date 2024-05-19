@@ -55,62 +55,78 @@ class MainGUI:
         pass
 
     def setNoteOne(self):
-        frame1 = Frame(self.window, bg='#E0FFFF')  # 밝은 청록색 배경
+        frame1 = Frame(self.window, bg='#E0FFFF')
         self.notebook.add(frame1, text='홈')
 
         original_image = Image.open('resource/logo.gif')
         resized_image = original_image.resize((285, 100), Image.LANCZOS)
         self.gif_image = ImageTk.PhotoImage(resized_image)
 
-        label_with_image = Label(frame1, image=self.gif_image, bg='#E0FFFF')
+        label_with_image = Label(frame1, image=self.gif_image)
         label_with_image.place(x=50, y=10)
+
+        # 시군 선택 콤보박스 생성
 
         self.gu_combo = tkinter.ttk.Combobox(frame1, textvariable=self.selected_gu, values=list(self.gu_options))
         self.gu_combo.place(x=50, y=120)
+        self.gu_combo.bind("<<ComboboxSelected>>", self.on_combobox_select)
 
-        self.fishingCampListBox = Listbox(frame1, width=26, height=17, font=("Consolas", 15), bg='#FFFFFF')  # 흰색 배경
+        # 낚시터 리스트 박스
+        self.fishingCampListBox = Listbox(frame1, width=26, height=17, font=("Consolas", 15),bg='#FFFFFF')
         self.fishingCampListBox.place(x=50, y=150)
 
-        self.Star = Button(frame1, text="Star", width=15, height=7, bg='#4682B4', fg='white')  # 진한 파랑 배경
+
+        # 지도
+        #추가 해야함
+
+        # 즐겨 찾기 버튼
+        self.Star = Button(frame1, text="Star", width=15, height=7, command=self.pressdStar)
         self.Star.place(x=370, y=450)
 
-        self.Mail = Button(frame1, text="Mail", width=15, height=7, bg='#2E8B57', fg='white')  # 진한 녹색 배경
+        # 메일 버튼
+        self.Mail = Button(frame1, text="Mail", width=15, height=7, command=self.pressdMail)
         self.Mail.place(x=520, y=450)
 
-        self.Info = Button(frame1, text="Info", width=15, height=7, bg='#FFA07A', fg='white')  # 주황색 배경
+        # 돋보기 버튼
+        self.Info = Button(frame1, text="Info", width=15, height=7, command=self.pressdInfo)
         self.Info.place(x=670, y=450)
 
     def setNoteTwo(self):
-        frame2 = Frame(self.window, bg='#F5F5DC')  # 연한 베이지 배경
+        frame2 = Frame(self.window, bg='#E0FFFF')
         self.notebook.add(frame2, text='즐겨찾기')
 
-        label_with_image = Label(frame2, image=self.gif_image, bg='#F5F5DC')
+        label_with_image = Label(frame2, image=self.gif_image)
         label_with_image.place(x=50, y=10)
 
-        self.starFishingCampListBox = Listbox(frame2, width=41, height=27, bg='#FFFFFF')  # 흰색 배경
+        # 낚시터 리스트 박스
+        self.starFishingCampListBox = Listbox(frame2, width=41, height=27, bg='#FFFFFF')
         self.starFishingCampListBox.place(x=50, y=120)
 
-        self.starFishingCampInfo = Label(frame2, font=("Consolas", 20), bg='#F5F5DC', fg='#2F4F4F')  # 짙은 남색 텍스트
+        # 낚시터 정보 라벨
+        self.starFishingCampInfo = Label(frame2, font=("Consolas", 20), bg='#E0FFFF', fg='#2F4F4F')
         self.starFishingCampInfo.place(x=400, y=100)
         self.starFishingCampInfo.config(text=f"낚시터 이름: \n"
-                                             f"면적: \n"
-                                             f"가격: \n"
-                                             f"위치: \n"
-                                             f"날씨: ")
+                               f"면적: \n"
+                               f"가격: \n"
+                               f"위치: \n"
+                               f"날씨: ")
 
     def setNoteThree(self):
-        frame3 = Frame(self.window, bg='#ADD8E6')  # 연한 하늘색 배경
+        frame3 = Frame(self.window, bg='#E0FFFF')
         self.notebook.add(frame3, text='면적 그래프')
+        Label(frame3, text='면적 그래프', fg='#2F4F4F', font=('Consolas', 30), bg='#E0FFFF').pack()  # 짙은 남색 텍스트
 
-        Label(frame3, text='면적 그래프', fg='#2F4F4F', font=('Consolas', 30), bg='#ADD8E6').pack()  # 짙은 남색 텍스트
-
+        # 시군 콤보 박스 생성
         self.gu_combo = tkinter.ttk.Combobox(frame3, textvariable=self.selected_gu, values=list(self.gu_options))
         self.gu_combo.pack()
 
-        self.areaCanvas = Canvas(frame3, width=700, height=400, bg='#FFFFFF')  # 흰색 배경
+        # 그래프 canvas 생성
+        self.areaCanvas = Canvas(frame3, width=700, height=400, bg='#FFFFFF')
         self.areaCanvas.pack()
 
-        self.areaCanvas.create_rectangle(2, 2, 700, 400)
+        self.areaCanvas.create_rectangle(2,2, 700, 400)
+
+
 
     def __init__(self):
         self.window = Tk()
@@ -119,8 +135,9 @@ class MainGUI:
         self.selected_gu = StringVar()
         self.selected_gu.set("가평군")  # 초기값 설정
         self.gu_options = ['가평군', '고양시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', '부천시', '수원시', '시흥시', '안산시', '안성시',
-                           '안양시', '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시',
-                           '하남시', '화성시']
+                           '안양시',
+                           '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시',
+                           '화성시']
         self.notebook = tkinter.ttk.Notebook(self.window, width=800, height=600)
         self.notebook.pack()
 
@@ -129,5 +146,6 @@ class MainGUI:
         self.setNoteThree()
 
         self.window.mainloop()
+
 
 MainGUI()
