@@ -45,8 +45,28 @@ class MainGUI:
         for camp in self.fishingCamps:
             self.fishingCampListBox.insert(END, camp["name"])
 
+    def on_star_listbox_select(self, event):            # 즐겨찾기 리스트 정보 표시
+        selected_index = self.starFishingCampListBox.curselection()
+        if selected_index:
+            selected_camp = self.starredCamps[selected_index[0]]
+            info_text = (
+                f"낚시터 이름: {selected_camp['name']}\n"
+                f"면적: {selected_camp['area']}\n"
+                f"가격: {selected_camp['price']}\n"
+                f"위치: {selected_camp['address']}\n"
+                f"위도: {selected_camp['lat']}\n"
+                f"경도: {selected_camp['lng']}\n"
+            )
+            self.starFishingCampInfo.config(text=info_text)
+
     def pressdStar(self):
-        pass
+        selected_index = self.fishingCampListBox.curselection()
+        if selected_index:
+            selected_camp = self.fishingCamps[selected_index[0]]
+            camp_name = selected_camp["name"]
+            if camp_name not in self.starredCamps:
+                self.starredCamps.append(camp_name)
+                self.starFishingCampListBox.insert(END, camp_name)
 
     def pressdMail(self):
         pass
@@ -99,7 +119,7 @@ class MainGUI:
         label_with_image.place(x=50, y=10)
 
         # 낚시터 리스트 박스
-        self.starFishingCampListBox = Listbox(frame2, width=41, height=27, bg='#FFFFFF')
+        self.starFishingCampListBox = Listbox(frame2, width=26, height=18, font=("Consolas", 15), bg='#FFFFFF')
         self.starFishingCampListBox.place(x=50, y=120)
 
         # 낚시터 정보 라벨
@@ -126,11 +146,26 @@ class MainGUI:
 
         self.areaCanvas.create_rectangle(2,2, 700, 400)
 
+    def show_main_screen(self):
+        self.splash_frame.destroy()
+        self.notebook.pack()
 
+    def show_splash_screen(self):
+        self.splash_frame = Frame(self.window)
+        self.splash_frame.pack(fill='both', expand=True)
+        original_image = Image.open('resource/logo.gif')
+        resized_image = original_image.resize((800, 600), Image.LANCZOS)
+        self.splash_image = ImageTk.PhotoImage(resized_image)
+
+        splash_label = Label(self.splash_frame, image=self.splash_image,width=800, height=600)
+        splash_label.place(relx=0.5, rely=0.5, anchor='center')
+
+        self.window.after(5000, self.show_main_screen)
 
     def __init__(self):
         self.window = Tk()
         self.window.title('Fishing Camp')
+        self.window.geometry("800x600")
         self.window.configure(bg='#E0FFFF')  # 밝은 청록색 배경
         self.selected_gu = StringVar()
         self.selected_gu.set("가평군")  # 초기값 설정
@@ -139,11 +174,15 @@ class MainGUI:
                            '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시',
                            '화성시']
         self.notebook = tkinter.ttk.Notebook(self.window, width=800, height=600)
-        self.notebook.pack()
+
+        self.fishingCamps = []
+        self.starredCamps = []
 
         self.setNoteOne()
         self.setNoteTwo()
         self.setNoteThree()
+
+        self.show_splash_screen()
 
         self.window.mainloop()
 
