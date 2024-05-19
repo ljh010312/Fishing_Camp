@@ -50,10 +50,10 @@ class MainGUI:
         if selected_index:
             selected_camp = self.starredCamps[selected_index[0]]
             info_text = (
-                f"낚시터 이름: {selected_camp['name']}\n"
+                f"이름: {selected_camp['name']}\n"
                 f"면적: {selected_camp['area']}\n"
                 f"가격: {selected_camp['price']}\n"
-                f"위치: {selected_camp['address']}\n"
+                f"주소: {selected_camp['address']}\n"
                 f"위도: {selected_camp['lat']}\n"
                 f"경도: {selected_camp['lng']}\n"
             )
@@ -65,7 +65,7 @@ class MainGUI:
             selected_camp = self.fishingCamps[selected_index[0]]
             camp_name = selected_camp["name"]
             if camp_name not in self.starredCamps:
-                self.starredCamps.append(camp_name)
+                self.starredCamps.append(selected_camp)
                 self.starFishingCampListBox.insert(END, camp_name)
 
     def pressdMail(self):
@@ -121,15 +121,13 @@ class MainGUI:
         # 낚시터 리스트 박스
         self.starFishingCampListBox = Listbox(frame2, width=26, height=18, font=("Consolas", 15), bg='#FFFFFF')
         self.starFishingCampListBox.place(x=50, y=120)
+        self.starFishingCampListBox.bind("<<ListboxSelect>>", self.on_star_listbox_select)
+
 
         # 낚시터 정보 라벨
-        self.starFishingCampInfo = Label(frame2, font=("Consolas", 20), bg='#E0FFFF', fg='#2F4F4F')
-        self.starFishingCampInfo.place(x=400, y=100)
-        self.starFishingCampInfo.config(text=f"낚시터 이름: \n"
-                               f"면적: \n"
-                               f"가격: \n"
-                               f"위치: \n"
-                               f"날씨: ")
+        self.starFishingCampInfo = Label(frame2, font=("Consolas", 15), bg='#E0FFFF', fg='#2F4F4F', wraplength=250)
+        self.starFishingCampInfo.place(x=475, y=350)
+        self.starFishingCampInfo.config(text="낚시터 정보를 선택하세요")
 
     def setNoteThree(self):
         frame3 = Frame(self.window, bg='#E0FFFF')
@@ -159,8 +157,9 @@ class MainGUI:
 
         splash_label = Label(self.splash_frame, image=self.splash_image,width=800, height=600)
         splash_label.place(relx=0.5, rely=0.5, anchor='center')
-
-        self.window.after(5000, self.show_main_screen)
+        
+        # ms뒤에 홈화면
+        self.window.after(1, self.show_main_screen)
 
     def __init__(self):
         self.window = Tk()
