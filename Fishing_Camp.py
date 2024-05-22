@@ -209,7 +209,8 @@ class MainGUI:
         self.starFishingCampInfo.config(text="낚시터 정보를 선택하세요")
 
         # 즐겨찾기 삭제 버튼
-        self.Delete = Button(self.frame2, text="Delete", width=40, height=3, command=self.pressdDelete)
+        self.deleteimage = PhotoImage(file='resource/delete.gif')
+        self.Delete = Button(self.frame2, image=self.deleteimage, text="Delete", width=280, height=60, command=self.pressdDelete)
         self.Delete.place(x=50, y=500)
 
     def setNoteThree(self):
