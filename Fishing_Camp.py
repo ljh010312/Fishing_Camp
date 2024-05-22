@@ -89,16 +89,17 @@ class MainGUI:
     def pressdInfo(self):
         # 좌측에 있는 지역 리스트를 숨김
         self.fishingCampListBox.place_forget()
+        self.homeimage=PhotoImage(file='resource/home.gif')
 
         # info 버튼을 다시 눌렀을 때 기존의 UI를 복구하기 위한 함수를 바인딩
-        self.Info.config(text='home', command=self.restore_info)
+        self.Info.config(image=self.homeimage,text='home', command=self.restore_info)
 
     def restore_info(self):
         # 좌측에 지역 리스트를 다시 보이도록 설정
         self.fishingCampListBox.place(x=50, y=150)
-
+        self.searchimage = PhotoImage(file='resource/search.gif')
         # info 버튼을 다시 눌렀을 때 원래 기능으로 돌아가도록 설정
-        self.Info.config(text='Info', command=self.pressdInfo)
+        self.Info.config(image=self.searchimage, text='Info', command=self.pressdInfo)
 
     def pressdDelete(self):
         selected_index = self.starFishingCampListBox.curselection()
@@ -165,15 +166,18 @@ class MainGUI:
         #추가 해야함
 
         # 즐겨 찾기 버튼
-        self.Star = Button(self.frame1, text="Star", width=15, height=7, command=self.pressdStar)
+        self.starimage = PhotoImage(file='resource/bookmark.gif')
+        self.Star = Button(self.frame1,image=self.starimage, text="Star", width=100, height=100, command=self.pressdStar)
         self.Star.place(x=370, y=450)
 
         # 메일 버튼
-        self.Mail = Button(self.frame1, text="Mail", width=15, height=7, command=self.pressdMail)
+        self.mailimage = PhotoImage(file='resource/mail.gif')
+        self.Mail = Button(self.frame1, image=self.mailimage,text="Mail", width=100, height=100, command=self.pressdMail)
         self.Mail.place(x=520, y=450)
 
         # 돋보기 버튼
-        self.Info = Button(self.frame1, text="Info", width=15, height=7, command=self.pressdInfo)
+        self.searchimage = PhotoImage(file='resource/search.gif')
+        self.Info = Button(self.frame1, image= self.searchimage, text="Info", width=100, height=100, command=self.pressdInfo)
         self.Info.place(x=670, y=450)
 
 
