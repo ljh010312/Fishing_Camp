@@ -15,6 +15,32 @@ weather_url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilag
 
 
 class MainGUI:
+    def set_weather_text(self):
+        weather_summary = {
+            'POP': None,
+            'TMP': None,
+            'SKY': None
+        }
+        for item in self.weathers:
+            category = item['category']
+            if category in weather_summary:
+                weather_summary[category] = item['fcstValue']
+
+        # 하늘 상태 값을 해석
+        sky_state = {
+            '1': '맑음',
+            '3': '구름많음',
+            '4': '흐림'
+        }
+        sky_text = sky_state.get(weather_summary['SKY'], '알 수 없음')
+
+        # 텍스트 변환
+        self.weather_text_output = (
+            f"강수확률: {weather_summary['POP']}%\n"
+            f"1시간 기온: {weather_summary['TMP']}℃\n"
+            f"하늘 상태: {sky_text}"
+        )
+
     def get_weather_info(self, nx, ny):
         # 현재 날짜와 시간
         now = datetime.now()
@@ -233,6 +259,10 @@ class MainGUI:
         self.Info = Button(self.frame1, image= self.searchimage, text="Info", width=100, height=100, command=self.pressdInfo)
         self.Info.place(x=670, y=450)
 
+        # 우측 상단에 정보를 출력할 라벨 생성
+        self.weather_label = Label(self.frame1, text=self.weather_text_output, font=("Consolas", 15),
+                                   bg='#E0FFFF', fg='#2F4F4F', anchor='ne', justify='right')
+        self.weather_label.place(x=500, y=10)
 
 
     def setNoteTwo(self):
@@ -309,6 +339,8 @@ class MainGUI:
                            '안양시',
                            '양주시', '양평군', '여주시', '연천군', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', '평택시', '포천시', '하남시',
                            '화성시']
+        self.get_weather_info(37, 127)
+        self.set_weather_text()
         self.notebook = tkinter.ttk.Notebook(self.window, width=800, height=600)
 
         self.fishingCamps = []
@@ -319,7 +351,6 @@ class MainGUI:
         self.setNoteThree()
 
         self.show_splash_screen()
-        self.get_weather_info(37, 127)
         self.window.mainloop()
 
 
