@@ -3,13 +3,66 @@ import tkinter.ttk
 import requests
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageTk, ImageSequence
+from datetime import datetime
 
 # 공공데이터 API 키
 api_key = "74fa492cdb04499b94a9f323b07ccecf"
 # 경기도 낚시터 정보 API
 url = "https://openapi.gg.go.kr/FishingPlaceStatus"
 
+weather_api_key = 'PmlKfXizyTi+o6XMWSpMAxJy4WgAMfRvHWBrxnN49hfkHMjcFPbR0zxx6BT7KqmPMzt3e/fYhBhqJa5OdcWEFQ=='
+weather_url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
+
+
 class MainGUI:
+    def get_weather_info(self, nx, ny):
+        # 현재 날짜와 시간
+        now = datetime.now()
+        base_date = now.strftime('%Y%m%d')
+        base_time = now.strftime('%H00')
+
+        # 요청 파라미터
+        params = {
+            "serviceKey": weather_api_key,
+            "pageNo": 1,
+            "numOfRows": 1000,
+            "base_date": base_date,
+            'base_time': '0500',
+            'nx': nx,
+            'ny': ny
+        }
+
+        # API 요청
+        response = requests.get(weather_url, params=params)
+
+        # 응답 확인 및 파싱
+        if response.status_code == 200:
+            root = ET.fromstring(response.content)
+            rows = root.findall(".//item")
+            self.weathers = []
+            for item in rows:
+                fcst_date = item.find('fcstDate').text
+                fcst_time = item.find('fcstTime').text
+
+                # 현재 날짜와 시간의 정각과 일치하는 항목 필터링
+                if fcst_date == base_date and fcst_time == base_time:
+                    weather_info = {
+                        'baseDate': item.find('baseDate').text,
+                        'baseTime': item.find('baseTime').text,
+                        'category': item.find('category').text,
+                        'fcstDate': item.find('fcstDate').text,
+                        'fcstTime': item.find('fcstTime').text,
+                        'fcstValue': item.find('fcstValue').text,
+                        'nx': item.find('nx').text,
+                        'ny': item.find('ny').text
+                    }
+                    self.weathers.append(weather_info)
+            print(self.weathers)
+
+        else:
+            print(f"Error: {response.status_code}")
+            return None
+
     def getFishingCampList(self, SIGUN):
         params = {
             "Key": api_key,
@@ -266,7 +319,7 @@ class MainGUI:
         self.setNoteThree()
 
         self.show_splash_screen()
-
+        self.get_weather_info(37, 127)
         self.window.mainloop()
 
 
