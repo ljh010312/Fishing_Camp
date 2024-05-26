@@ -102,6 +102,7 @@ class MainGUI:
         rows = root.findall(".//row")
 
         self.fishingCamps = []
+        self.areas = []
         for row in rows:
             fishingCamp = {
                 "name": row.findtext("FISHPLC_NM"),  # 낚시터 이름
@@ -110,7 +111,8 @@ class MainGUI:
                 "lng": row.findtext("REFINE_WGS84_LOGT"),  # 경도
                 "area": row.findtext("FISHPLC_AR"),     # 낚시터 면적
                 "price": row.findtext("UTLZ_CHRG"),  # 가격
-        }
+            }
+            self.areas.append(float(row.findtext("FISHPLC_AR")))
             self.fishingCamps.append(fishingCamp)
 
     def on_combobox_select(self, event):
@@ -118,11 +120,26 @@ class MainGUI:
         print(f"Selected: {selected_gu}")
         self.getFishingCampList(selected_gu)
         self.update_fishing_camp_listbox()
+        self.update_fishing_camp_graph()
 
     def update_fishing_camp_listbox(self):
         self.fishingCampListBox.delete(0, END)
         for camp in self.fishingCamps:
             self.fishingCampListBox.insert(END, camp["name"])
+
+    def update_fishing_camp_graph(self):
+        self.areaCanvas.delete('graph')
+        max_area = max(self.areas)
+        bar_width = 5
+        x_gap = 30
+        x0 = 30
+        y0 = 250
+        for i in range(len(self.areas)):
+            x1 = x0 + i * (bar_width + x_gap)
+            y1 = y0 - 200 * self.areas[i] / max_area
+            self.areaCanvas.create_rectangle(x1, y1, x1 + bar_width, y0, fill='blue', tags='graph')
+            self.areaCanvas.create_text(x1 + bar_width / 2 - 3, y0 + 75, text=self.fishingCamps[i]['name'], anchor='n', angle=90, tags='graph', font=('Consolas',8))
+            self.areaCanvas.create_text(x1 + bar_width / 2, y1 - 10, text=str(self.areas[i]), anchor='s', tags='graph', font=('Consolas',9))
 
     def on_star_listbox_select(self, event):            # 즐겨찾기 리스트 정보 표시
         selected_index = self.starFishingCampListBox.curselection()
@@ -304,12 +321,21 @@ class MainGUI:
         # 시군 콤보 박스 생성
         self.gu_comboThree = tkinter.ttk.Combobox(frame3, textvariable=self.selected_gu, values=list(self.gu_options))
         self.gu_comboThree.pack()
+        self.gu_comboThree.bind("<<ComboboxSelected>>", self.on_combobox_select)
 
         # 그래프 canvas 생성
-        self.areaCanvas = Canvas(frame3, width=700, height=400, bg='#FFFFFF')
+        self.areaCanvas = Canvas(frame3, width=780, height=400, bg='#FFFFFF')
         self.areaCanvas.pack()
 
-        self.areaCanvas.create_rectangle(2,2, 700, 400)
+        # self.h_scrollbar = Scrollbar(frame3, orient=HORIZONTAL, command=self.areaCanvas.xview)
+        # self.h_scrollbar.pack(side=BOTTOM, fill=X)
+        # 
+        # # 캔버스와 스크롤바를 연결
+        # self.areaCanvas.configure(xscrollcommand=self.h_scrollbar.set)
+
+        self.areaLabel = Label(frame3,text='단위(ha)',fg='#2F4F4F', font=('Consolas', 15), bg='#E0FFFF')
+        self.areaLabel.pack(side=RIGHT)
+        self.areaCanvas.create_rectangle(2,2, 780, 400)
 
     def show_main_screen(self):
         self.splash_frame.destroy()
