@@ -161,6 +161,11 @@ class MainGUI:
                 f"경도: {selected_camp['lng']}\n"
             )
             self.starFishingCampInfo.config(text=info_text)
+            if selected_camp['lat'] != '':
+                lat = eval(selected_camp['lat'])
+                lng = eval(selected_camp['lng'])
+                self.star_map_widget.set_position(lat, lng, text=selected_camp['name'])
+                self.star_map_widget.set_marker(lat, lng, text=selected_camp['name'])
 
     def on_listbox_select(self, event):            # 즐겨찾기 리스트 정보 표시
         selected_index = self.fishingCampListBox.curselection()
@@ -314,6 +319,10 @@ class MainGUI:
         self.starFishingCampListBox = Listbox(self.frame2, width=26, height=15, font=("Consolas", 15), bg='#FFFFFF')
         self.starFishingCampListBox.place(x=50, y=120)
         self.starFishingCampListBox.bind("<<ListboxSelect>>", self.on_star_listbox_select)
+
+        # 지도
+        self.star_map_widget = TkinterMapView(self.frame2, width=350, height=300, corner_radius=0)
+        self.star_map_widget.place(x=400, y=20)
 
 
         # 낚시터 정보 라벨
