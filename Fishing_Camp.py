@@ -175,6 +175,11 @@ class MainGUI:
                 f"경도: {selected_camp['lng']}\n"
             )
             self.info_label.config(text=info_text)
+            if selected_camp['lat'] != '':
+                lat = eval(selected_camp['lat'])
+                lng = eval(selected_camp['lng'])
+                self.map_widget.set_position(lat, lng, text=selected_camp['name'])
+                self.map_widget.set_marker(lat, lng, text=selected_camp['name'])
 
 
     def pressdStar(self):
