@@ -4,6 +4,7 @@ import requests
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageTk, ImageSequence
 from datetime import datetime
+from tkintermapview import TkinterMapView
 
 # 공공데이터 API 키
 api_key = "74fa492cdb04499b94a9f323b07ccecf"
@@ -265,7 +266,8 @@ class MainGUI:
         self.fishingCampListBox.bind("<<ListboxSelect>>", self.on_listbox_select)
 
         # 지도
-        #추가 해야함
+        self.map_widget = TkinterMapView(width=350, height=350, corner_radius=0)
+        self.map_widget.place(x=400, y=120)
 
         # 즐겨 찾기 버튼
         self.starimage = PhotoImage(file='resource/bookmark.gif')
