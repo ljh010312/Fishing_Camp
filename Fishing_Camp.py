@@ -5,6 +5,10 @@ import xml.etree.ElementTree as ET
 from PIL import Image, ImageTk, ImageSequence
 from datetime import datetime
 from tkintermapview import TkinterMapView
+import mysmtplib
+from email.mime.text import MIMEText
+from tkinter import messagebox
+import spam
 
 # 공공데이터 API 키
 api_key = "74fa492cdb04499b94a9f323b07ccecf"
@@ -14,8 +18,69 @@ url = "https://openapi.gg.go.kr/FishingPlaceStatus"
 weather_api_key = 'PmlKfXizyTi+o6XMWSpMAxJy4WgAMfRvHWBrxnN49hfkHMjcFPbR0zxx6BT7KqmPMzt3e/fYhBhqJa5OdcWEFQ=='
 weather_url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 
+# global value
+host = "smtp.gmail.com"  # Gmail STMP 서버 주소.
+port = "587"
+
+senderAddr = "leejunho3288@gmail.com"  # 보내는 사람 email 주소.
+passwd = spam.getPasswd()
 
 class MainGUI:
+
+    def open_email_window(self):
+        selected_index = self.fishingCampListBox.curselection()
+        if not selected_index:
+            messagebox.showerror("Error", "낚시터를 선택해주세요!")
+            return
+
+        self.emailWindow = Toplevel(self.frame1)
+        self.emailWindow.title("이메일 입력")
+        self.emailWindow.geometry("300x125")  # 창 크기 설정
+        self.emailWindow.configure(bg='#E0FFFF')  # 배경 색 설정
+
+        Label(self.emailWindow, text="수신자 이메일", font=("Consolas", 15, "bold"),fg='#2F4F4F', bg='#E0FFFF').pack(pady=10)
+        self.emailEntry = Entry(self.emailWindow, font=("Consolas", 12), width=30)  # 글씨 크기와 엔트리 크기 설정
+        self.emailEntry.pack(pady=5)
+
+        Button(self.emailWindow, text="Send", command=self.send_mail).pack()
+
+    def send_mail(self):
+        selected_index = self.fishingCampListBox.curselection()
+        if selected_index:
+            selected_camp = self.fishingCamps[selected_index[0]]
+            info_text = (
+                f"이름: {selected_camp['name']}\n"
+                f"면적(ha): {selected_camp['area']}\n"
+                f"가격(원): {selected_camp['price']}\n"
+                f"주소: {selected_camp['address']}\n"
+                f"위도: {selected_camp['lat']}\n"
+                f"경도: {selected_camp['lng']}\n"
+            )
+        else:
+            messagebox.showerror("Error", "낚시터를 선택해주세요!")
+            return
+        recipientAddr = self.emailEntry.get()
+        if not recipientAddr:
+            messagebox.showerror("Error", "이메일을 입력해주세요!")
+            return
+        msg = MIMEText(info_text)
+        msg['Subject'] = "FishingCamp 낚시터 정보"
+        msg['From'] = senderAddr
+        msg['To'] = recipientAddr
+
+        try:
+            s = mysmtplib.MySMTP(host, port)
+            s.ehlo()
+            s.starttls()
+            s.ehlo()
+            s.login(senderAddr, passwd)
+            s.sendmail(senderAddr, [recipientAddr], msg.as_string())
+            s.close()
+            messagebox.showinfo("Success", "이메일 전송 성공!")
+            self.emailWindow.destroy()  # 성공적으로 보낸 후 창을 닫음
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to send email: {e}")
+
     def set_weather_text(self):
         weather_summary = {
             'POP': None,
@@ -197,7 +262,7 @@ class MainGUI:
                 self.starFishingCampListBox.insert(END, camp_name)
 
     def pressdMail(self):
-        pass
+        self.open_email_window()
 
     def pressdInfo(self):
         # 좌측에 있는 지역 리스트를 숨김
@@ -271,7 +336,7 @@ class MainGUI:
         self.gu_combo.bind("<<ComboboxSelected>>", self.on_combobox_select)
 
         # 낚시터 리스트 박스
-        self.fishingCampListBox = Listbox(self.frame1, width=26, height=17, font=("Consolas", 15),bg='#FFFFFF')
+        self.fishingCampListBox = Listbox(self.frame1, width=26, height=17, font=("Consolas", 15), bg='#ADD8E6')
         self.fishingCampListBox.place(x=50, y=150)
         self.fishingCampListBox.bind("<<ListboxSelect>>", self.on_listbox_select)
 
@@ -281,17 +346,17 @@ class MainGUI:
 
         # 즐겨 찾기 버튼
         self.starimage = PhotoImage(file='resource/bookmark.gif')
-        self.Star = Button(self.frame1,image=self.starimage, text="Star", width=100, height=100, command=self.pressdStar)
+        self.Star = Button(self.frame1,image=self.starimage, text="Star", width=100, height=100, bg='#ADD8E6', command=self.pressdStar)
         self.Star.place(x=370, y=450)
 
         # 메일 버튼
         self.mailimage = PhotoImage(file='resource/mail.gif')
-        self.Mail = Button(self.frame1, image=self.mailimage,text="Mail", width=100, height=100, command=self.pressdMail)
+        self.Mail = Button(self.frame1, image=self.mailimage,text="Mail", width=100, height=100, bg='#ADD8E6', command=self.pressdMail)
         self.Mail.place(x=520, y=450)
 
         # 돋보기 버튼
         self.searchimage = PhotoImage(file='resource/search.gif')
-        self.Info = Button(self.frame1, image= self.searchimage, text="Info", width=100, height=100, command=self.pressdInfo)
+        self.Info = Button(self.frame1, image= self.searchimage, text="Info", width=100, height=100, bg='#ADD8E6', command=self.pressdInfo)
         self.Info.place(x=670, y=450)
 
         # 우측 상단에 정보를 출력할 라벨 생성
@@ -316,7 +381,7 @@ class MainGUI:
         self.animate_gif_note2()
 
         # 낚시터 리스트 박스
-        self.starFishingCampListBox = Listbox(self.frame2, width=26, height=15, font=("Consolas", 15), bg='#FFFFFF')
+        self.starFishingCampListBox = Listbox(self.frame2, width=26, height=15, font=("Consolas", 15), bg='#ADD8E6')
         self.starFishingCampListBox.place(x=50, y=120)
         self.starFishingCampListBox.bind("<<ListboxSelect>>", self.on_star_listbox_select)
 
@@ -332,7 +397,7 @@ class MainGUI:
 
         # 즐겨찾기 삭제 버튼
         self.deleteimage = PhotoImage(file='resource/delete.gif')
-        self.Delete = Button(self.frame2, image=self.deleteimage, text="Delete", width=280, height=60, command=self.pressdDelete)
+        self.Delete = Button(self.frame2, image=self.deleteimage, text="Delete", bg='#ADD8E6', width=280, height=60, command=self.pressdDelete)
         self.Delete.place(x=50, y=500)
 
     def setNoteThree(self):
@@ -353,7 +418,7 @@ class MainGUI:
         # 시군 콤보 박스 생성
 
         # 그래프 canvas 생성
-        self.areaCanvas = Canvas(self.canvas_frame, width=780, height=400, bg='#FFFFFF',
+        self.areaCanvas = Canvas(self.canvas_frame, width=780, height=400, bg='#ADD8E6',
                                  xscrollcommand=self.h_scrollbar.set)
         self.areaCanvas.pack(side=LEFT, fill=BOTH, expand=True)
 
