@@ -9,6 +9,9 @@ import mysmtplib
 from email.mime.text import MIMEText
 from tkinter import messagebox
 import spam
+import telepot
+
+import noti
 
 # 공공데이터 API 키
 api_key = "74fa492cdb04499b94a9f323b07ccecf"
@@ -67,7 +70,6 @@ class MainGUI:
         msg['Subject'] = "FishingCamp 낚시터 정보"
         msg['From'] = senderAddr
         msg['To'] = recipientAddr
-
         try:
             s = mysmtplib.MySMTP(host, port)
             s.ehlo()
@@ -427,6 +429,7 @@ class MainGUI:
         self.areaLabel = Label(frame3,text='단위(ha)',fg='#2F4F4F', font=('Consolas', 15), bg='#E0FFFF')
         self.areaLabel.pack(side=RIGHT)
 
+
     def show_main_screen(self):
         self.splash_frame.destroy()
         self.notebook.pack()
@@ -467,7 +470,17 @@ class MainGUI:
         self.setNoteThree()
 
         self.show_splash_screen()
+
+        import teller
+        import noti
+        self.bot = teller.telepot.Bot(noti.TOKEN)
+        self.bot.message_loop(teller.handle)
+
         self.window.mainloop()
 
 
+
+
+
 MainGUI()
+
